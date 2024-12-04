@@ -43,6 +43,13 @@ const HeatMapGraph = () => {
       .attr("width", width)
       .attr("height", height);
 
+    // create and append tooltip
+    const tooltip = d3
+      .select("#axes")
+      .append("div")
+      .attr("class", "tooltip tooltip-open tooltip-top")
+      .style("opacity", 0);
+
     // x axis
     const x = d3
       .scaleBand<number>()
@@ -137,8 +144,16 @@ const HeatMapGraph = () => {
       .on("mouseover", (event, d) => {
         const date = new Date(d.year, d.month);
         console.log(date);
+
+        const toolTipInfo = `${d3.utcFormat("%Y - %B")(date)} 
+          Temperature: ${d3.format(".1f")(data.baseTemperature + d.variance)} °C
+          Variance: ${d3.format("+.1f")(d.variance)} °C`;
+
+        tooltip.style("opacity", 1);
+
+        tooltip.attr("data-tip", toolTipInfo);
       })
-      .on("mouseout");
+      .on("mouseout", () => tooltip.style("opacity", 0));
   };
 
   return (
