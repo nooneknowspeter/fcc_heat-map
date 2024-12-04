@@ -96,7 +96,7 @@ const HeatMapGraph = () => {
     <>
       <div className="flex h-screen flex-col items-center justify-center">
         <h1 id="title" className="text-center">
-          title
+          Heat Map Showing Global Land Temperature Since 1753
         </h1>
         <div id="axes"></div>
       </div>
