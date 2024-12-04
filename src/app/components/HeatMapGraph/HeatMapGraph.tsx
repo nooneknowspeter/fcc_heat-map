@@ -24,7 +24,7 @@ const HeatMapGraph = () => {
     // destructure data from json object
     const { baseTemperature, monthlyVariance } = data;
 
-    console.log(baseTemperature);
+    // console.log(baseTemperature);
 
     // 1.92 ratio
     const width = 1344;
@@ -76,7 +76,7 @@ const HeatMapGraph = () => {
       .scaleBand<number>()
       // months
       .domain(d3.range(12))
-      .rangeRound([height - marginBottom, marginTop]);
+      .range([marginTop, height - marginBottom]);
 
     const yAxis = d3
       .axisLeft(y)
@@ -95,6 +95,45 @@ const HeatMapGraph = () => {
       .attr("id", "y-axis")
       .attr("transform", `translate(${marginLeft},0)`)
       .call(yAxis);
+
+    const colors = d3.scaleSequential(d3.interpolateMagma);
+
+    // heat map
+    svg
+      .append("g")
+      .classed("map", true)
+      .attr("transform", `translate(${0}, ${0})`)
+      .selectAll("rect")
+      .data(monthlyVariance)
+      .enter()
+      .append("rect")
+      .attr("class", "cell")
+      .attr("data-month", (d) => {
+        // console.log(d.month);
+        return d.month;
+      })
+      .attr("data-year", (d) => {
+        return d.year;
+      })
+      .attr("data-temp", (d) => {
+        const f = d3.format(".1f");
+        // console.log(f(baseTemperature + d.variance));
+        // console.log(d.variance);
+        return f(baseTemperature + d.variance);
+      })
+      // .attr("x", (d) => x(d.year) ?? 0)
+      // .attr("y", (d) => y(d.month) ?? 0)
+      .attr("x", (d) => String(x(d.year)))
+      .attr("y", (d) => {
+        // console.log(d.month);
+        // index month data to 0
+        return String(y(d.month - 1));
+      })
+      .attr("width", x.bandwidth())
+      .attr("height", y.bandwidth())
+      .attr("fill", (d) => {
+        return colors(d.variance);
+      });
   };
 
   return (
