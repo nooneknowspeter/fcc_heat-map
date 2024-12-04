@@ -133,7 +133,12 @@ const HeatMapGraph = () => {
       .attr("height", y.bandwidth())
       .attr("fill", (d) => {
         return colors(d.variance);
-      });
+      })
+      .on("mouseover", (event, d) => {
+        const date = new Date(d.year, d.month);
+        console.log(date);
+      })
+      .on("mouseout");
   };
 
   return (
