@@ -9,12 +9,22 @@ const HeatMapGraph = () => {
 
   const chartHeatMap = async () => {
     // provided json data containing global land temperature since 1753
-    const url =
+    const url: string =
       "https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json";
 
-    const data = await d3.json(url);
+    interface dataInterface {
+      baseTemperature: number;
+      monthlyVariance: [{ year: number; month: number; variance: number }];
+    }
 
-    console.log(data);
+    const data = (await d3.json(url)) as dataInterface;
+
+    // console.log(data);
+
+    // destructure data from json object
+    const { baseTemperature, monthlyVariance } = data;
+
+    console.log(baseTemperature);
 
     // 1.92 ratio
     const width = 1344;
@@ -35,13 +45,8 @@ const HeatMapGraph = () => {
 
     // x axis
     const x = d3
-      .scaleBand()
-      .domain(
-        data.monthlyVariance.map((el) => {
-          // console.log(el.year);
-          return el.year;
-        }),
-      )
+      .scaleBand<number>()
+      .domain(monthlyVariance.map((el) => el.year))
       .range([marginLeft, width - marginRight]);
 
     const xAxis = d3
@@ -49,16 +54,16 @@ const HeatMapGraph = () => {
       .tickValues(
         x.domain().filter((year) => {
           // set ticks to years divisible by 10
-          return year % 10 === 0;
+          return Number(year) % 10 === 0;
         }),
       )
       .tickFormat((year) => {
         const date = new Date(0);
-        date.setUTCFullYear(year);
+        date.setUTCFullYear(Number(year));
         const format = d3.utcFormat("%Y");
         return format(date);
       })
-      .tickSize(10, 1);
+      .tickSize(10);
 
     svg
       .append("g")
@@ -68,9 +73,9 @@ const HeatMapGraph = () => {
 
     // y axis
     const y = d3
-      .scaleBand()
+      .scaleBand<number>()
       // months
-      .domain([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
+      .domain(d3.range(12))
       .rangeRound([height - marginBottom, marginTop]);
 
     const yAxis = d3
@@ -78,11 +83,11 @@ const HeatMapGraph = () => {
       .tickValues(y.domain())
       .tickFormat((month) => {
         const date = new Date(0);
-        date.setUTCMonth(month);
+        date.setUTCMonth(Number(month));
         const format = d3.utcFormat("%B");
         return format(date);
       })
-      .tickSize(10, 1);
+      .tickSize(10);
 
     svg
       .append("g")
