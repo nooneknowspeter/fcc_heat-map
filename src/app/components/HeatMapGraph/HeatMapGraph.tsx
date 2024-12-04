@@ -152,13 +152,17 @@ const HeatMapGraph = () => {
         tooltip.style("opacity", 1);
 
         tooltip.attr("data-tip", toolTipInfo);
+
+        tooltip
+          .style("left", `${event.x - innerHeight * 0.18}px`)
+          .style("top", `${event.y - innerWidth / 2 - innerHeight * 0.07}px`);
       })
       .on("mouseout", () => tooltip.style("opacity", 0));
   };
 
   return (
     <>
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="tran flex h-screen flex-col items-center justify-center">
         <h1 id="title" className="text-center">
           Heat Map Showing Global Land Temperature Since 1753
         </h1>
