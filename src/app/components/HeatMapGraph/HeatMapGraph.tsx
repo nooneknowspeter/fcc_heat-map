@@ -40,6 +40,19 @@ const HeatMapGraph = () => {
     const svg = d3
       .select("#axes")
       .append("svg")
+      .attr("width", 0)
+      .attr("height", 0);
+
+    // title animation
+    d3.select("#title").style("opacity", 0);
+
+    d3.select("#title").transition().duration(2000).style("opacity", 1);
+
+    // svg transition
+    svg
+      .transition()
+      .duration(2000)
+      .delay(2000)
       .attr("width", width)
       .attr("height", height);
 
@@ -183,9 +196,16 @@ const HeatMapGraph = () => {
       .select("#axes")
       .append("svg")
       .attr("id", "legend")
+      .attr("height", 0)
+      .attr("width", 0);
+
+    // legend transition
+    legend
+      .transition()
+      .duration(2000)
+      .delay(4000)
       .attr("height", legendHeight)
       .attr("width", width);
-    // .attr("transform", `translate(${marginLeft},0)`);
 
     // legend colors
     legend
@@ -214,7 +234,10 @@ const HeatMapGraph = () => {
   return (
     <>
       <div className="flex h-screen flex-col items-center justify-center">
-        <h1 id="title" className="text-center font-bold">
+        <h1
+          id="title"
+          className="opaci text-center text-xl font-bold opacity-0"
+        >
           Heat Map Showing Global Land Temperature Since 1753
         </h1>
         <div id="axes"></div>
