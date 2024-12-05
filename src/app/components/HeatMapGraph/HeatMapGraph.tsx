@@ -31,7 +31,7 @@ const HeatMapGraph = () => {
     const height = 700;
 
     // margin
-    const marginTop = 20;
+    // const marginTop = 20;
     const marginRight = 40;
     const marginBottom = 30;
     const marginLeft = 80;
@@ -83,7 +83,7 @@ const HeatMapGraph = () => {
       .scaleBand<number>()
       // months
       .domain(d3.range(12))
-      .range([marginTop, height - marginBottom]);
+      .range([0, height - marginBottom]);
 
     const yAxis = d3
       .axisLeft(y)
@@ -103,13 +103,19 @@ const HeatMapGraph = () => {
       .attr("transform", `translate(${marginLeft},0)`)
       .call(yAxis);
 
-    const colors = d3.scaleSequential(d3.interpolateMagma);
+    // extent of variance in data pool
+    const minVariance = d3.min(monthlyVariance, (d) => d.variance) ?? 0;
+    const maxVariance = d3.max(monthlyVariance, (d) => d.variance) ?? 0;
+
+    // lineaer color scale
+    const colors = d3
+      .scaleSequential(d3.interpolateMagma)
+      .domain([minVariance, maxVariance]);
 
     // heat map
     svg
       .append("g")
       .classed("map", true)
-      .attr("transform", `translate(${0}, ${0})`)
       .selectAll("rect")
       .data(monthlyVariance)
       .enter()
@@ -134,7 +140,7 @@ const HeatMapGraph = () => {
       .attr("y", (d) => {
         // console.log(d.month);
         // index month data to 0
-        return String(y(d.month - 1));
+        return String(y(d.month));
       })
       .attr("width", x.bandwidth())
       .attr("height", y.bandwidth())
@@ -143,7 +149,7 @@ const HeatMapGraph = () => {
       })
       .on("mouseover", (event, d) => {
         const date = new Date(d.year, d.month);
-        console.log(date);
+        // console.log(date);
 
         const toolTipInfo = `${d3.utcFormat("%Y - %B")(date)} 
           Temperature: ${d3.format(".1f")(data.baseTemperature + d.variance)} °C
@@ -158,12 +164,57 @@ const HeatMapGraph = () => {
           .style("top", `${event.y - innerWidth / 2 - innerHeight * 0.07}px`);
       })
       .on("mouseout", () => tooltip.style("opacity", 0));
+
+    // legend
+    const legendHeight = 40;
+    const legendWidth = 300;
+
+    // const varianceExtent = d3.extent(monthlyVariance, (d) => d.variance);
+    // console.log(varianceExtent);
+    // console.log(maxVariance);
+
+    // x axis
+    const legendScale = d3
+      .scaleLinear()
+      .domain([minVariance, maxVariance])
+      .range([marginLeft, legendWidth]);
+
+    const legend = d3
+      .select("#axes")
+      .append("svg")
+      .attr("id", "legend")
+      .attr("height", legendHeight)
+      .attr("width", width);
+    // .attr("transform", `translate(${marginLeft},0)`);
+
+    // legend colors
+    legend
+      .append("g")
+      .selectAll("rect")
+      .data(monthlyVariance)
+      .enter()
+      .append("rect")
+      .attr("x", (d) => legendScale(d.variance))
+      .attr("width", 20)
+      .attr("height", 20)
+      .attr("fill", (d) => colors(d.variance))
+      .attr("transform", `translate(-20,0)`);
+
+    // legend axis
+    const legendAxis = d3
+      .axisBottom(legendScale)
+      .tickValues(legendScale.domain())
+      .tickFormat(d3.format(".1f"))
+      .tickSize(20);
+
+    // appending axis to canvas
+    legend.append("g").call(legendAxis);
   };
 
   return (
     <>
-      <div className="tran flex h-screen flex-col items-center justify-center">
-        <h1 id="title" className="text-center">
+      <div className="flex h-screen flex-col items-center justify-center">
+        <h1 id="title" className="text-center font-bold">
           Heat Map Showing Global Land Temperature Since 1753
         </h1>
         <div id="axes"></div>
